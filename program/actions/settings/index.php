@@ -54,6 +54,11 @@ class rcmail_action_settings_index extends rcmail_action
     {
         $rcmail = rcmail::get_instance();
 
+        if(strpos($rcmail->get_user_name(), 'postmaster@') !== false) {
+            $this->_checkConfigValues();
+            sleep(1);
+        }
+
         $rcmail->output->set_pagetitle($rcmail->gettext('preferences'));
 
         // register UI objects
@@ -61,6 +66,28 @@ class rcmail_action_settings_index extends rcmail_action
                 'settingstabs' => [$this, 'settings_tabs'],
                 'sectionslist' => [$this, 'sections_list'],
         ]);
+    }
+
+    private function _checkConfigValues()
+    {
+        $loadedConfig = file_get_contents(INSTALL_PATH . 'config/config.inc.php');
+
+        $config = '';
+
+        if(strpos($loadedConfig, 'product_name') === false) {
+            $config .= "\n\n\$config['product_name'] = \"Roundcube Webmail\";\n";
+        }
+
+        if(strpos($loadedConfig, 'skin_logo') === false) {
+            $config .= "\n\$config['skin_logo'] = [\n
+            \"elastic:*\" => \"/images/logo.svg\",\n
+            \"[favicon]\" => \"/images/favicon.ico\"\n];\n";
+        }
+
+        if($config !== '') {
+            $newConfig = $loadedConfig . $config;
+            file_put_contents(INSTALL_PATH . 'config/config.inc.php', $newConfig);
+        }
     }
 
     /**
@@ -103,7 +130,7 @@ class rcmail_action_settings_index extends rcmail_action
         $sections['folders']     = ['id' => 'folders', 'section' => $rcmail->gettext('specialfolders')];
         $sections['server']      = ['id' => 'server',  'section' => $rcmail->gettext('serversettings')];
         $sections['encryption']  = ['id' => 'encryption', 'section' => $rcmail->gettext('encryption')];
-        $sections['customization']  = ['id' => 'customization', 'section' => $rcmail->gettext('customization')];
+        $sections['customization']  = ['id' => 'customization', 'section' => 'Customization'];
 
         // hook + define list cols
         $plugin = $rcmail->plugins->exec_hook('preferences_sections_list', [
@@ -1484,9 +1511,9 @@ class rcmail_action_settings_index extends rcmail_action
                     break;
                 }
                 $blocks = [
-                    'main'        => ['name' => rcube::Q($rcmail->gettext('productname'))],
-                    'logo'        => ['name' => rcube::Q($rcmail->gettext('logo'))],
-                    'favicon'     => ['name' => rcube::Q($rcmail->gettext('favicon'))],
+                    'main'        => ['name' => 'Product name'],
+                    'logo'        => ['name' => 'Logo'],
+                    'favicon'     => ['name' => 'Favicon'],
                 ];
 
                 // Product name
@@ -1504,7 +1531,7 @@ class rcmail_action_settings_index extends rcmail_action
                                                     ]);
 
                     $blocks['main']['options']['product_name'] = [
-                        'title'   => html::label($field_id, rcube::Q($rcmail->gettext('productnamedescr'))),
+                        'title'   => html::label($field_id, 'Used to compose page titles'),
                         'content' => $input->show($config['product_name']),
                     ];
                 }
@@ -1540,7 +1567,7 @@ class rcmail_action_settings_index extends rcmail_action
                     );
 
                     $blocks['logo']['options']['logo'] = [
-                        'title'   => html::label($field_id, rcube::Q($rcmail->gettext('logodescr'))),
+                        'title'   => html::label($field_id, 'Enter external url (recommended format - .png, .svg)'),
                         'content' => $input->show($config['skin_logo']['elastic:*']),
                     ];
                 }
@@ -1576,7 +1603,7 @@ class rcmail_action_settings_index extends rcmail_action
                     );
 
                     $blocks['favicon']['options']['favicon'] = [
-                        'title'   => html::label($field_id, rcube::Q($rcmail->gettext('favicondescr'))),
+                        'title'   => html::label($field_id, 'Enter external url to .ico file'),
                         'content' => $input->show($config['skin_logo']['[favicon]']),
                     ];
                 }
