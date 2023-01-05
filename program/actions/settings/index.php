@@ -1551,11 +1551,11 @@ class rcmail_action_settings_index extends rcmail_action
                                                     ]);
 
                     $img = html::img([
-                                         'src'     => '/skins/elastic' . $config['skin_logo']['elastic:*'],
+                                         'src'     => './skins/elastic' . $config['skin_logo']['elastic:*'],
                                          'alt'     => 'Current logo',
                                          'width'   => 100,
                                          'height'  => 100,
-                                         'onerror' => "this.onerror = null; this.src = 'data:image/gif;base64," . rcmail_output::BLANK_GIF ."';",
+                                         'onerror' => "this.onerror = null;",
                                      ]);
 
                     $blocks['logo']['options']['logo_img']['content'] = html::label(['class' => 'skinselection'],
@@ -1587,11 +1587,11 @@ class rcmail_action_settings_index extends rcmail_action
                                                     ]);
 
                     $img = html::img([
-                                         'src'     => '/skins/elastic' . $config['skin_logo']['[favicon]'],
+                                         'src'     => './skins/elastic' . $config['skin_logo']['[favicon]'],
                                          'alt'     => 'Current favicon',
                                          'width'   => 64,
                                          'height'  => 64,
-                                         'onerror' => "this.onerror = null; this.src = 'data:image/gif;base64," . rcmail_output::BLANK_GIF ."';",
+                                         'onerror' => "this.onerror = null;",
                                      ]);
 
                     $blocks['favicon']['options']['favicon_img']['content'] = html::label(['class' => 'skinselection'],
